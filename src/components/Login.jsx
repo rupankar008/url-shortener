@@ -23,8 +23,8 @@ function Login() {
   };
 
   return (
-    <div className="page-container">
-      <h2>Login</h2>
+    <div className="login-box">
+      <h2 className='login-title'>Login</h2>
       <input
         type="email"
         value={email}

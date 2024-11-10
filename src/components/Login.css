@@ -27,20 +27,26 @@ body {
       transform: translateY(0);
     }
   }
+
   
   .login-box {
-    background-color: #fff;
-    border-radius: 10px;
+    max-width: 600px;
     padding: 40px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    width: 350px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px); /* Optional: adds a subtle blur effect */
     text-align: center;
+    color: white;
+    animation: fadeIn 1s ease-in;
+
   }
   
   .login-title {
-    font-size: 24px;
-    color: #333;
+    font-size: 2.5rem;
     margin-bottom: 20px;
+    font-weight: 900;
+    color: white;
   }
   
   .login-input {

@@ -7,15 +7,9 @@
     justify-content: center;
     align-items: center;
     text-align: center;
-    height: 100vh; /* Full screen height */
-    width: 100%; /* Full screen width */
-    background-color: #667eea; /* Default solid background color */
-    background: linear-gradient(135deg, #667eea, #764ba2); /* Default gradient background */
+    min-height: 100vh;
+    width: 100vw;
     color: white;
-    font-family: 'Nunito', sans-serif;
-    padding: 0; /* Remove any extra padding */
-    margin: 0; /* Remove default margin */
-    box-sizing: border-box;
     transition: background 0.5s ease; /* Smooth transition for background change */
   }
   
@@ -29,6 +23,19 @@
     0% { background-position: 0% 50%; }
     100% { background-position: 100% 50%; }
   }
+
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   
   /* Main content styling */
   .home-content {
@@ -38,12 +45,13 @@
     border-radius: 15px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(5px); /* Optional: adds a subtle blur effect */
+    animation: fadeIn 1s ease-in-out;
   }
   
   h1 {
     font-size: 2.5rem;
     margin-bottom: 20px;
-    font-weight: bold;
+    font-weight: 900;
   }
   
   .home-description {
@@ -66,10 +74,12 @@
     border-radius: 5px;
     font-size: 1rem;
     transition: background-color 0.3s;
+    text-decoration: none;
   }
   
   .home-button:hover {
     background-color: #ff1a1a;
+    color: white;
   }
   
   .divider {

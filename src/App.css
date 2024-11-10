@@ -3,24 +3,26 @@
 /* Import Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;800&display=swap');
 
+*{
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
 /* Apply global styles */
 body {
   margin: 0;
   font-family: 'Nunito', sans-serif;
-  background: linear-gradient(135deg, #f0f4ff, #e0e4ff);
+  background: url('https://i.pinimg.com/736x/92/a1/6c/92a16c36179d6df80f0ca6ca245a30dc.jpg') no-repeat; /* Default gradient background */
+  background-position: center;
+  background-size: cover;
+  background-clip: border-box;
+  background-attachment: fixed;
   color: #333;
-  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.app-container {
   width: 100%;
-  max-width: 1200px;
-  padding: 20px;
-  box-sizing: border-box;
-  animation: fadeIn 1s ease-in-out;
 }
 
 @keyframes fadeIn {
