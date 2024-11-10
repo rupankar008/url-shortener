@@ -11,7 +11,6 @@ import './App.css'; // Import global styles
 function App() {
   return (
     <Router>
-      <div className="app-container">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
@@ -26,7 +25,6 @@ function App() {
           />
           <Route path="/:shortId" element={<Redirect />} /> {/* Redirect route */}
         </Routes>
-      </div>
     </Router>
   );
 }

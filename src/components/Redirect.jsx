@@ -37,7 +37,7 @@ function Redirect() {
     fetchUrl();
   }, [shortId, navigate]);
 
-  return <p>Redirecting...</p>;
+  return <p style={{background:"white", borderRadius: "10px", padding: "10px 20px"}}>Redirecting...</p>;
 }
 
 export default Redirect;
