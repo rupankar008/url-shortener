@@ -4,7 +4,7 @@ function Home() {
   return (
     <div className="home-container bg-gradient-to-br from-blue-500 to-indigo-600 min-h-screen flex flex-col items-center justify-center text-white">
       <div className="home-content text-center p-6 max-w-2xl bg-white bg-opacity-10 rounded-lg shadow-lg">
-        <h1 className="text-4xl font-bold mb-4">Welcome to MinimURL</h1>
+        <h1 className="text-4xl font-bold mb-4">Welcome to Flik</h1> {/* Updated name */}
         <p className="home-description text-lg mb-6">
           Easily shorten your long URLs and share them with ease. Sign up or log in to get started!
         </p>
