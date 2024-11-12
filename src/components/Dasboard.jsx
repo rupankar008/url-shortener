@@ -8,7 +8,6 @@ import { ThreeDots } from 'react-loader-spinner';
 import { Bar } from 'react-chartjs-2'; // Import the Bar chart
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { FaEye, FaTrash, FaLinkedin, FaGithub, FaGlobe, FaTwitter, FaTimes, FaInstagram, FaDiscord } from 'react-icons/fa'
-import { FaXTwitter } from 'react-icons/fa6';
 import AboutMeModal from './AboutMeModal';
 
 // Register Chart.js components
