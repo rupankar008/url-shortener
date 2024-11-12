@@ -4,23 +4,30 @@ import { signOut } from 'firebase/auth';
 import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc, query, where } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
-import './Dashboard.css';
+import { ThreeDots } from 'react-loader-spinner';
+import { Bar } from 'react-chartjs-2'; // Import the Bar chart
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import { FaEye, FaTrash,FaLinkedin, FaGithub, FaGlobe, FaTwitter, FaTimes, FaInstagram, FaDiscord } from 'react-icons/fa'
+import { FaXTwitter } from 'react-icons/fa6';
+
+// Register Chart.js components
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 function Dashboard() {
   const [url, setUrl] = useState('');
   const [urls, setUrls] = useState([]);
   const [showAboutMe, setShowAboutMe] = useState(false);
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Listen for auth state changes
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
         fetchUserUrls(currentUser.uid);
       } else {
-        navigate('/'); // Redirect to home if not logged in
+        navigate('/');
       }
     });
 
@@ -28,6 +35,7 @@ function Dashboard() {
   }, [navigate]);
 
   const fetchUserUrls = async (userId) => {
+    setLoading(true);
     try {
       const q = query(collection(db, 'urls'), where('userId', '==', userId));
       const querySnapshot = await getDocs(q);
@@ -38,6 +46,8 @@ function Dashboard() {
       setUrls(urlsArray);
     } catch (error) {
       alert('Error fetching URLs: ' + error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -59,8 +69,8 @@ function Dashboard() {
       const docRef = await addDoc(collection(db, 'urls'), {
         originalUrl: url,
         shortId: uniqueId,
-        shortUrl: shortUrl,
-        userId: user.uid, // Associate URL with the logged-in user
+        shortUrl,
+        userId: user.uid,
         createdAt: new Date(),
         visits: 0,
         active: true,
@@ -96,108 +106,223 @@ function Dashboard() {
     }
   };
 
+  // Data for the Bar Chart
+  const chartData = {
+    labels: urls.map((url) => url.shortId),
+    datasets: [
+      {
+        label: 'Number of Visits',
+        data: urls.map((url) => url.visits),
+        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: true,
+        text: 'URL Visits',
+      },
+    },
+  };
+
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-header">
-        <h2>Dashboard</h2>
-        <div className="menu-buttons">
-          <button className="about-me-button" onClick={() => setShowAboutMe(true)}>
-            About Me
-          </button>
-          <button className="logout-button" onClick={handleLogout}>
-            Logout
+    <section className="w-full min-h-screen bg-gray-100 py-8">
+      <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-md text-gray-900 p-6">
+        <div className="flex justify-between items-center border-b pb-4 mb-6">
+          <h2 className="text-2xl font-bold uppercase text-indigo-600">Dashboard</h2>
+          <div className="flex space-x-4">
+            <button
+              className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition duration-200"
+              onClick={() => setShowAboutMe(true)}
+            >
+              About Me
+            </button>
+            <button
+              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition duration-200"
+              onClick={handleLogout}
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+
+        <div className="flex items-center space-x-4 mb-6">
+          <input
+            type="text"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="Enter URL"
+            className="flex-1 p-3 border rounded focus:outline-none focus:ring focus:border-indigo-300"
+          />
+          <button
+            className="bg-indigo-600 text-white px-4 py-3 rounded hover:bg-indigo-700 transition duration-200"
+            onClick={shortenUrl}
+          >
+            Shorten URL
           </button>
         </div>
-      </div>
-      <div className="input-button-container">
-        <input
-          type="text"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          placeholder="Enter URL"
-        />
-        <button onClick={shortenUrl}>Shorten URL</button>
-      </div>
 
-      {/* Modal */}
-      <div className={`about-me-modal ${showAboutMe ? 'show' : ''}`}>
-        <div className="modal-content">
-          <h3>About Me</h3>
-          <p>
-            Hi, users! My name is <strong>Rupankar Bhuiya</strong>. I am currently a student in Class 11, pursuing a science stream.
-            I have a deep passion for coding and development...
-          </p>
-          <button onClick={() => setShowAboutMe(false)}>Close</button>
-        </div>
-      </div>
+        {loading ? (
+          <div className="flex justify-center items-center">
+            <ThreeDots color="#4A90E2" height={50} width={50} />
+          </div>
+        ) : (
+          <>
 
-      <h3>All Shortened URLs</h3>
-      <div className="url-table-container">
-      <table className="url-table">
-        <thead>
-          <tr>
-            <th>Original URL</th>
-            <th>Shortened URL</th>
-            <th>Visits</th>
-            <th>Created On</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {urls.map((url) => (
-            <tr key={url.id}>
-              <td>{url.originalUrl}</td>
-              <td>{url.shortUrl}</td>
-              <td>{url.visits}</td>
-              <td>
-                {url.createdAt?.seconds
-                  ? new Date(url.createdAt.seconds * 1000).toLocaleString()
-                  : new Date(url.createdAt).toLocaleString()}
-              </td>
-              <td className="url-actions">
-                <button
-                  onClick={() => {
-                    if (url.active) {
-                      window.open(`/${url.shortId}`, '_blank');
-                    } else {
-                      alert('This link is currently deactivated.');
-                    }
-                  }}
-                  className={url.active ? 'active-link' : 'inactive-link'}
-                >
-                  View
-                </button>
-                <button onClick={() => deleteLink(url.id)}>Delete</button>
-                <div className="dropdown">
-                  <button className="dropbtn">
-                    {url.active ? 'Active' : 'Deactive'}
-                  </button>
-                  <div className="dropdown-content">
-                    <button
-                      className={url.active ? 'selected' : ''}
-                      onClick={() => toggleActive(url.id, true)}
-                    >
-                      Activate
-                    </button>
-                    <button
-                      className={!url.active ? 'selected' : ''}
-                      onClick={() => toggleActive(url.id, false)}
-                    >
-                      Deactivate
-                    </button>
-                  </div>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200 bg-white text-sm">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-2 text-left font-bold uppercase text-gray-600">Index</th>
+                    <th className="px-4 py-2 text-left font-bold uppercase text-gray-600">Original URL</th>
+                    <th className="px-4 py-2 text-left font-bold uppercase text-gray-600">Shortened URL</th>
+                    <th className="px-4 py-2 text-left font-bold uppercase text-gray-600">Visits</th>
+                    <th className="px-4 py-2 text-left font-bold uppercase text-gray-600">Created On</th>
+                    <th className="px-4 py-2 text-left font-bold uppercase text-gray-600">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {urls.map((url, index) => (
+                    <tr key={url.id} className="hover:bg-gray-100 transition duration-200">
+                      <td className="px-4 py-2 text-gray-800">{index + 1}</td>
+                      <td className="px-4 py-2 text-gray-800">{url.originalUrl}</td>
+                      <td className="px-4 py-2 text-indigo-600 underline cursor-pointer" onClick={() => window.open(`/${url.shortId}`, '_blank')}>
+                        {url.shortUrl}
+                      </td>
+                      <td className="px-4 py-2 text-gray-800">{url.visits}</td>
+                      <td className="px-4 py-2 text-gray-800">
+                        {url.createdAt?.seconds
+                          ? new Date(url.createdAt.seconds * 1000).toLocaleString()
+                          : new Date(url.createdAt).toLocaleString()}
+                      </td>
+                      <td className="px-4 py-2 flex items-center space-x-2">
+                        <button
+                          className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition duration-200"
+                          onClick={() => (url.active ? window.open(`/${url.shortId}`, '_blank') : alert('This link is currently deactivated.'))}
+                        >
+                          <FaEye />
+                        </button>
+                        <button
+                          className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition duration-200"
+                          onClick={() => deleteLink(url.id)}
+                        >
+                          <FaTrash />
+                        </button>
+                        <select
+                          value={url.active ? 'Active' : 'Deactive'}
+                          className="border rounded px-2 py-1"
+                          onChange={(e) => toggleActive(url.id, e.target.value === 'Active')}
+                        >
+                          <option value="Active">Active</option>
+                          <option value="Deactive">Deactive</option>
+                        </select>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-      <footer className="author-footer">
-        Made with ❤️ by Rupankar
-      </footer>
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold uppercase text-indigo-600 my-4">Visit chart</h2>
+              <Bar data={chartData} options={chartOptions} />
+            </div>
+          </>
+        )}
+
+{showAboutMe && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full relative">
+      <button
+        className="absolute top-3 right-3 text-gray-400 hover:text-gray-800"
+        onClick={() => setShowAboutMe(false)}
+      >
+        <FaTimes />
+      </button>
+      <h3 className="text-lg font-semibold mb-4">About Me</h3>
+      <p className="text-sm text-gray-700 mb-4">
+        Hi there, my name is <strong>Rupankar Bhuiya</strong>. I am currently in Class 11, pursuing a science stream. I am passionate about programming and technology, and I love working on exciting projects!
+      </p>
+      <h4 className="text-md font-semibold mb-2">Connect with Me:</h4>
+      <ul className="space-y-2 mb-4">
+        <li className="flex items-center space-x-2">
+          <FaInstagram className="text-pink-700" />
+          <a
+            href="FaTimes, FaEye, FaTrash"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-pink-600 hover:underline"
+          >
+            Instagram
+          </a>
+        </li>
+        <li className="flex items-center space-x-2">
+          <FaGithub className="text-gray-800" />
+          <a
+            href="https://github.com/rupankar008"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-gray-600 hover:underline"
+          >
+            GitHub
+          </a>
+        </li>
+        <li className="flex items-center space-x-2">
+          <FaDiscord className="text-indigo-800" />
+          <a
+            href="https://discord.gg/M6rWM4DjVz"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-indigo-600 hover:underline"
+          >
+            Discord
+          </a>
+        </li>
+        {/* <li className="flex items-center space-x-2">
+          <FaGlobe className="text-green-600" />
+          <a
+            href="https://rupankar-portfolio.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-indigo-600 hover:underline"
+          >
+            Personal Website
+          </a>
+        </li> */}
+        <li className="flex items-center space-x-2">
+          <FaXTwitter className="text-black" />
+          <a
+            href="https://x.com/professor_toxi"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-black hover:underline"
+          >
+            X
+          </a>
+        </li>
+      </ul>
+      <button
+        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition duration-200"
+        onClick={() => setShowAboutMe(false)}
+      >
+        Close
+      </button>
     </div>
+  </div>
+)}
+
+
+        <footer className="text-center text-gray-500 mt-6">Made with ❤️ by Rupankar</footer>
+      </div>
+    </section>
   );
 }
 

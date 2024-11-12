@@ -6,7 +6,8 @@ import Dashboard  from './components/Dasboard';
 import Register from './components/Register';
 import ProtectedRoute from './components/ProtectedRoute';
 import Redirect from './components/Redirect';
-import './App.css'; // Import global styles
+import"./index.css"
+
 
 function App() {
   return (
